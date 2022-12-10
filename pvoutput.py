@@ -51,10 +51,11 @@ class pvoutput:
         state = self.load_state()
         telemetry = self.load_data()
         data = {**state, **telemetry}
-        
-        self.save_state(data)
-        
-        return data
+        if state == data:
+            return False
+        else:
+            self.save_state(data)
+            return data
 
     def load_data(self) -> dict:
         '''
@@ -110,8 +111,14 @@ if __name__ == '__main__':
 
     data = app.update_state()
 
-    pvo_data = app.aggregate_data(data)
+    if data:
 
-    response: requests.Response = app.upload(pvo_data)
+        pvo_data = app.aggregate_data(data)
 
-    print('HTTP Response:', response.status_code, response.content, sep='\n')
+        response: requests.Response = app.upload(pvo_data)
+
+        print('HTTP Response:', response.status_code, response.content, sep='\n')
+
+    else:
+
+        print('Nothing to report')
